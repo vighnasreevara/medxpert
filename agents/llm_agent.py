@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# Chat history
+# Chat history for general GPT chat (optional utility function)
 chat_history = []
 
 def chat_with_user(user_input):
@@ -21,8 +21,7 @@ def chat_with_user(user_input):
     chat_history.append({"role": "assistant", "content": answer})
     return answer
 
-import openai
-
+# Medicine summarizer function
 def summarize_medicines(columns, rows):
     """
     Builds an HTML summary for each medicine with:
@@ -66,9 +65,12 @@ Explain this medicine to a non-technical person. Cover:
 - Where to store it
 - Common side effects
 - Any precautions or advice
-Dont tell to completly ask user to consult with doctor instead use your knoweldge and say what are best dosage and when to take it (like after meal or before meal) and how to take.
+
+Dont tell to completely ask user to consult with a doctor — instead, use your knowledge and say what are best dosage practices and when to take it (like after meal or before meal) and how to take it.
+
 🎯 Keep the tone warm, professional, and easy to understand. Don't use bullet points. Just return a natural paragraph like you're speaking to the patient directly.
 """
+
         try:
             response = openai.ChatCompletion.create(
                 model="gpt-4",
@@ -82,15 +84,17 @@ Dont tell to completly ask user to consult with doctor instead use your knoweldg
         except Exception as e:
             gpt_summary = f"⚠️ GPT error: {e}"
 
-        # HTML block
+        # Convert line breaks to HTML format
+        summary_html = gpt_summary.replace('\n', '<br>')
+
+        # Build HTML block
         html_block = f"""
 <div style="margin-bottom: 40px; padding: 15px; border-radius: 10px; background-color: #f8f9fa;">
     <h3 style="color:#222;"><strong>💊 {name}</strong></h3>
     <img src="{image_url}" alt="{name}" style="width: 300px; margin-top: 10px; border-radius: 10px;" />
-    <p style="margin-top: 15px; font-size: 16px;">{gpt_summary.replace('\n', '<br>')}</p>
+    <p style="margin-top: 15px; font-size: 16px;">{summary_html}</p>
 </div>
-        """
-
+"""
         html_blocks.append(html_block)
 
     return "\n".join(html_blocks)
